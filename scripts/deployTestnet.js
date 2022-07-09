@@ -73,14 +73,21 @@ async function main() {
   )
   const quickRouter = UniswapV2Router.attach(quickswapRouterAddr)
 
-  const daiAddr =
-    chainId === 43113
-      ? '0xE2A327FCc16bDa0549DB7A77791eAdE13774434e'
-      : '0xE2A327FCc16bDa0549DB7A77791eAdE13774434e'
+  // const dai.address =
+  //   chainId === 43113
+  //     ? '0xE2A327FCc16bDa0549DB7A77791eAdE13774434e'
+  //     : '0xE2A327FCc16bDa0549DB7A77791eAdE13774434e'
+
+  // const dai.address =
+  //   chainId === 43113
+  //     ? '0x9d37Fd9Bc60E13a587D73DE0A3396235cfBfB7C4'
+  //     : '0x9d37Fd9Bc60E13a587D73DE0A3396235cfBfB7C4'
 
   // Deploy DAI
   const DAI = await ethers.getContractFactory('DAI')
-  const dai = DAI.attach(daiAddr)
+  // const DAI = await ethers.getContractFactory('USDC')
+  const dai = await DAI.deploy('18');
+  // const dai = DAI.attach(dai.address)
   await dai.mint(deployer.address, initialMint)
   console.log('DAI addr: ' + dai.address)
 
@@ -189,7 +196,7 @@ async function main() {
   const IDO = await ethers.getContractFactory('ArtixIDO')
   const ido = await IDO.deploy(
     artix.address,
-    daiAddr,
+    dai.address,
     treasury.address,
     staking.address,
     lpAddress

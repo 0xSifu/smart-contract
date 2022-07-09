@@ -139,7 +139,7 @@ contract DAI is LibNote {
             chainId_,
             address(this)
         ));
-        dailyDAILimit = 10000000000000000000000;
+        dailyDAILimit = 90000000000000000000000;
     }
 
     function allowance( address account_, address sender_ ) external view returns ( uint ) {

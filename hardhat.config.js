@@ -65,9 +65,9 @@ module.exports = {
     'avalanche-fuji': {
       url: avaxTestnetRPC,
       accounts: [dev],
-      gas: 'auto',
-      gas: 20000000,
-      gasPrice: 20000000000
+      // gas: 'auto',
+      // gas: 20000000,
+      // gasPrice: 20000000000
     },
     hardhat: {
       gas: 'auto',
