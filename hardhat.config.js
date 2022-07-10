@@ -23,6 +23,9 @@ module.exports = {
         version: '0.7.5',
       },
       {
+        version: '0.5.16',
+      },
+      {
         version: '0.6.6',
         settings: {
           optimizer: {
@@ -60,14 +63,16 @@ module.exports = {
       url: polygonMumbaiRPC,
       accounts: [dev],
       gas: 'auto',
-      gasPrice: ethers.utils.parseUnits('1.2', 'gwei').toNumber(),
+      gasPrice: ethers.utils.parseUnits('2.2', 'gwei').toNumber(),
     },
     'avalanche-fuji': {
       url: avaxTestnetRPC,
       accounts: [dev],
-      // gas: 'auto',
-      // gas: 20000000,
-      // gasPrice: 20000000000
+      gas: 'auto',
+      // gas: ethers.utils.parseUnits('88', 'gwei').toNumber(),
+      // gasPrice: ethers.utils.parseUnits('25', 'gwei').toNumber(),
+      // gas: 70000000000,
+      gasPrice: 500000000000
     },
     hardhat: {
       gas: 'auto',

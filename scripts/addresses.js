@@ -71,8 +71,8 @@ function getQuickSwapAddresses(networkID) {
     }
   if (networkID === 43113)
     return {
-      factory: '0x407876248b9a7E8f99758A421cA8416d638E0FEb',
-      router: '0xc080d7E40E099704703b2Fd72E1e5958f815C34B',
+      factory: '0x7808cb52d2Eb60157B24067f26F0c5fA2edD5eea',
+      router: '0x72307F6cf8b092bB45BC8d9b08EB150EfEA3BE83',
     }
   
 
