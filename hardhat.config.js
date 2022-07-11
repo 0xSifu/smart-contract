@@ -68,11 +68,12 @@ module.exports = {
     'avalanche-fuji': {
       url: avaxTestnetRPC,
       accounts: [dev],
-      gas: 'auto',
+      gas: 8100000,
       // gas: ethers.utils.parseUnits('88', 'gwei').toNumber(),
       // gasPrice: ethers.utils.parseUnits('25', 'gwei').toNumber(),
       // gas: 70000000000,
-      gasPrice: 300000000000,
+      // gasPrice: 8000000000,
+      gasPrice: 95000000000,
     },
     hardhat: {
       gas: 'auto',

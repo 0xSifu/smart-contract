@@ -136,18 +136,19 @@ async function main() {
     const LPADDRESS = await ethers.getContractFactory('UniswapV2Router02');
     const lpAddress_contract = LPADDRESS.attach(uniswapRouter)
 
-  const lp = new ethers.Contract(lpAddress, IUniswapV2Pair, deployer.address)
+  const lp = new ethers.Contract(lpAddress, IUniswapV2Pair, deployer)
   // Approve the treasury to spend DAI
-  await Promise.all([
-    (await dai.approve(treasury, largeApproval)).wait(),
-    (await dai.approve(daiBond, largeApproval)).wait(),
-    (await dai.approve(uniswapRouter, largeApproval)).wait(),
-    (await artix.approve(staking, largeApproval)).wait(),
-    (await artix.approve(stakingHelper, largeApproval)).wait(),
-    (await artix.approve(uniswapRouter, largeApproval)).wait(),
-    (await lp.approve(treasury, largeApproval)).wait(),
-  ])
-  console.log('Approve the treasury to spend DAI has been done!')
+  // await Promise.all([
+    // await dai.approve(treasury, largeApproval),
+    // await dai.approve(daiBond, largeApproval),
+    // await dai.approve(uniswapRouter, largeApproval),
+    // await artix.approve(staking, largeApproval),
+    // await artix.approve(stakingHelper, largeApproval),
+    // await artix.approve(uniswapRouter, largeApproval),
+    // console.log('await affter artix approve');
+    // await lp.approve(treasury, largeApproval),
+  // ])
+  // console.log('Approve the treasury to spend DAI has been done!')
 
   const totalIDODaiAmount = 100 * 10000
   const artixMinted = 200000
@@ -155,28 +156,44 @@ async function main() {
   const initialArtixPriceInLP = 15
   const daiInTreasury = totalIDODaiAmount - initialArtixPriceInLP * lpArtixAmount
   const profit = daiInTreasury - artixMinted - lpArtixAmount
-  console.log({ daiInTreasury, profit })
+  // console.log({ daiInTreasury, profit })
 
-  await (
-    await treasury_contract.deposit(
-      ethers.utils.parseEther(String(daiInTreasury)),
-      daiAddr,
-      BigNumber.from(profit).mul(1e9)
-    )
-  ).wait()
-  console.log('Deposit DAI in Treasury has been done!')
+  // await (
+    // await treasury_contract.deposit(
+    //   ethers.utils.parseEther(String(daiInTreasury)),
+    //   daiAddr,
+    //   BigNumber.from(profit).mul(1e9)
+    // )
+  // ).wait()
+  // console.log('Deposit DAI in Treasury has been done!')
 
+  // mint lp
+  // await (
+  //   await router_contract.addLiquidity(
+  //       daiAddr,
+  //     artixAddr,
+  //     ethers.utils.parseEther(String(lpArtixAmount * initialArtixPriceInLP)),
+  //     ethers.utils.parseUnits(String(lpArtixAmount), 9),
+  //     ethers.utils.parseEther(String(lpArtixAmount * initialArtixPriceInLP)),
+  //     ethers.utils.parseUnits(String(lpArtixAmount), 9),
+  //     deployer.address,
+  //     9000000000000
+  //   )
+  // ).wait()
+  // console.log('Mint LP has been done!')
+  const lpdaimint = 1000000000000000000000000
+  const lpartixmint = 200000000000000
   // mint lp
   await (
     await router_contract.addLiquidity(
-        daiAddr,
-      artixAddr,
-      ethers.utils.parseEther(String(lpArtixAmount * initialArtixPriceInLP)),
-      ethers.utils.parseUnits(String(lpArtixAmount), 9),
-      ethers.utils.parseEther(String(lpArtixAmount * initialArtixPriceInLP)),
-      ethers.utils.parseUnits(String(lpArtixAmount), 9),
+      dai.address,
+      artix.address,
+      lpdaimint,
+      lpartixmint,
+      lpdaimint,
+      lpartixmint,
       deployer.address,
-      1000000000000
+      9000000000000
     )
   ).wait()
   console.log('Mint LP has been done!')
