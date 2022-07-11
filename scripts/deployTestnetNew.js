@@ -1,11 +1,12 @@
 // @dev. This script will deploy this V1.1 of Artix. It will deploy the whole ecosystem.
 
 const { ethers } = require('hardhat')
-const { BigNumber, ContractFactory } = ethers
-const UniswapV2ABI = require('./IUniswapV2Factory.json').abi
+const { BigNumber } = ethers
+// const { BigNumber, ContractFactory } = ethers
+// const UniswapV2ABI = require('./IUniswapV2Factory.json').abi
 const IUniswapV2Pair = require('./IUniswapV2Pair.json').abi
-const UniswapV2RouterJson = require('@uniswap/v2-periphery/build/UniswapV2Router02.json')
-const { getQuickSwapAddresses } = require('./addresses')
+// const UniswapV2RouterJson = require('@uniswap/v2-periphery/build/UniswapV2Router02.json')
+// const { getQuickSwapAddresses } = require('./addresses')
 
 async function main() {
   const [deployer] = await ethers.getSigners()
@@ -65,19 +66,24 @@ async function main() {
   const chainId = (await provider.getNetwork()).chainId
   console.log("GET CHAIN ID : "+ chainId)
 
-  const { router: quickswapRouterAddr, factory: quickswapFactoryAddr } =
-    getQuickSwapAddresses(chainId)
+  // const { router: quickswapRouterAddr, factory: quickswapFactoryAddr } =
+  //   getQuickSwapAddresses(chainId)
 
-  const UniswapV2Router = ContractFactory.fromSolidity(
-    UniswapV2RouterJson,
-    deployer
-  )
-  const quickRouter = UniswapV2Router.attach(quickswapRouterAddr)
+  // const UniswapV2Router = ContractFactory.fromSolidity(
+  //   UniswapV2RouterJson,
+  //   deployer
+  // )
+  // const quickRouter = UniswapV2Router.attach(quickswapRouterAddr)
 
   const daiAddr =
     chainId === 43113
-      ? '0xD4B25121F68C26F881f4FDB2EBFbf04a966c778e'
-      : '0xD4B25121F68C26F881f4FDB2EBFbf04a966c778e'
+      ? '0xAc3f8193ecBe9E7F4DeEbf17639e89416FD0C804'
+      : '0xAc3f8193ecBe9E7F4DeEbf17639e89416FD0C804'
+
+  const wavaxAddr =
+    chainId === 43113
+      ? '0xd00ae08403B9bbb9124bB305C09058E32C39A48c'
+      : '0xd00ae08403B9bbb9124bB305C09058E32C39A48c'
 
   // Deploy DAI
   const DAI = await ethers.getContractFactory('DAI')
@@ -105,17 +111,28 @@ async function main() {
   console.log('Initialize Circulating Supply has been done!')
 
   // Initialize UniswapFactory
-  const uniswapFactory = new ethers.Contract(
-    quickswapFactoryAddr,
-    UniswapV2ABI,
-    deployer
-  )
-  console.log('Initialize UniswapV2Factory has been done!')
+  // const uniswapFactory = new ethers.Contract(
+  //   quickswapFactoryAddr,
+  //   UniswapV2ABI,
+  //   deployer
+  // )
+  // console.log(deployer.address);
+  // console.log('Initialize UniswapV2Factory has been done!')
+  const UniswapV2Factory = await ethers.getContractFactory('UniswapV2Factory');
+  const uniswapFactory = await UniswapV2Factory.deploy(deployer.address);
+  console.log('uniswapFactory address' + uniswapFactory.address)
+
+  const UniswapV2Router02 = await ethers.getContractFactory('UniswapV2Router02');
+  const uniswapRouter = await UniswapV2Router02.deploy(
+    uniswapFactory.address,
+    wavaxAddr
+  );
+  console.log('uniswapRouter address' + uniswapRouter.address)
 
   // Deploy LP
   await (await uniswapFactory.createPair(artix.address, dai.address)).wait()
   const lpAddress = await uniswapFactory.getPair(artix.address, dai.address)
-  console.log('LP created: ' + lpAddress)
+  console.log('get pair: ' + lpAddress)
 
   // Deploy bonding calc
   const BondingCalculator = await ethers.getContractFactory(
@@ -350,10 +367,10 @@ async function main() {
   await Promise.all([
     (await dai.approve(treasury.address, largeApproval)).wait(),
     (await dai.approve(daiBond.address, largeApproval)).wait(),
-    (await dai.approve(quickRouter.address, largeApproval)).wait(),
+    (await dai.approve(uniswapRouter.address, largeApproval)).wait(),
     (await artix.approve(staking.address, largeApproval)).wait(),
     (await artix.approve(stakingHelper.address, largeApproval)).wait(),
-    (await artix.approve(quickRouter.address, largeApproval)).wait(),
+    (await artix.approve(uniswapRouter.address, largeApproval)).wait(),
     (await lp.approve(treasury.address, largeApproval)).wait(),
   ])
   console.log('Approve the treasury to spend DAI has been done!')
@@ -377,7 +394,7 @@ async function main() {
 
   // mint lp
   await (
-    await quickRouter.addLiquidity(
+    await UniswapV2Router02.addLiquidity(
       dai.address,
       artix.address,
       ethers.utils.parseEther(String(lpArtixAmount * initialArtixPriceInLP)),
