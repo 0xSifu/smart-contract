@@ -72,8 +72,7 @@ module.exports = {
       // gas: ethers.utils.parseUnits('88', 'gwei').toNumber(),
       // gasPrice: ethers.utils.parseUnits('25', 'gwei').toNumber(),
       // gas: 70000000000,
-      gasPrice: 50000000000
-                 
+      gasPrice: 300000000000,
     },
     hardhat: {
       gas: 'auto',
@@ -89,6 +88,6 @@ module.exports = {
     apiKey: etherscanApiKey,
   },
   mocha: {
-    timeout: 5 * 60 * 10000,
+    timeout: 10 * 60 * 10000,
   }
 }
