@@ -164,7 +164,7 @@ async function main() {
   const initialArtixPriceInLP = 15
   const daiInTreasury = totalIDODaiAmount - initialArtixPriceInLP * lpArtixAmount
   const profit = daiInTreasury - artixMinted - lpArtixAmount
-  console.log({ daiInTreasury, profit })
+  // console.log({ daiInTreasury, profit })
 
   await (
     await treasuryContract.deposit(
@@ -176,6 +176,22 @@ async function main() {
   console.log('Deposit DAI in Treasury has been done!')
   
   // mint lp
+  // await (
+  //   await router_contract.addLiquidity(
+  //       daiAddr,
+  //     artixAddr,
+  //     ethers.utils.parseEther(String(lpArtixAmount * initialArtixPriceInLP)),
+  //     ethers.utils.parseUnits(String(lpArtixAmount), 9),
+  //     ethers.utils.parseEther(String(lpArtixAmount * initialArtixPriceInLP)),
+  //     ethers.utils.parseUnits(String(lpArtixAmount), 9),
+  //     deployer.address,
+  //     9000000000000
+  //   )
+  // ).wait()
+  // console.log('Mint LP has been done!')
+  const lpdaimint = 1000000000000000000000000
+  const lpartixmint = 200000000000000
+  // mint lp
   await (
     await router.addLiquidity(
       daiAddr,
@@ -185,7 +201,7 @@ async function main() {
       ethers.utils.parseEther(String(lpArtixAmount * initialArtixPriceInLP)),
       ethers.utils.parseUnits(String(lpArtixAmount), 9),
       deployer.address,
-      1000000000000
+      9000000000000
     )
   ).wait()
   console.log('Mint LP has been done!')

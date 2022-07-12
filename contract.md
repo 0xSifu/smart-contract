@@ -46,4 +46,11 @@ Queue and toggle DAI-ARTIX liquidity depositor has been done!
 Set bond terms has been done!
 Set staking for bonds has been done!
 Initialize sARTIX and set the index has been done!
+<<<<<<< HEAD
 
+=======
+Set distributor contract and warmup contract has been done!
+Set treasury for ARTIX token has been done!
+Add staking contract as distributor recipient has been done!
+Queue and toggle reward manager has been done!
+>>>>>>> 54462d6948e1122d10d09429b6473e1c66f1fcc0
