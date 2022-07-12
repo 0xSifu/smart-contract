@@ -1,12 +1,11 @@
 // @dev. This script will deploy this V1.1 of Artix. It will deploy the whole ecosystem.
 
 const { ethers } = require('hardhat')
-const { BigNumber } = ethers
-// const { BigNumber, ContractFactory } = ethers
-// const UniswapV2ABI = require('./IUniswapV2Factory.json').abi
+const { BigNumber, ContractFactory } = ethers
+const UniswapV2ABI = require('./IUniswapV2Factory.json').abi
 const IUniswapV2Pair = require('./IUniswapV2Pair.json').abi
-// const UniswapV2RouterJson = require('@uniswap/v2-periphery/build/UniswapV2Router02.json')
-// const { getQuickSwapAddresses } = require('./addresses')
+const UniswapV2RouterJson = require('@uniswap/v2-periphery/build/UniswapV2Router02.json')
+const { getQuickSwapAddresses } = require('./addresses')
 
 async function main() {
   const [deployer] = await ethers.getSigners()
@@ -66,30 +65,36 @@ async function main() {
   const chainId = (await provider.getNetwork()).chainId
   console.log("GET CHAIN ID : "+ chainId)
 
-  // const { router: quickswapRouterAddr, factory: quickswapFactoryAddr } =
-  //   getQuickSwapAddresses(chainId)
+  const { router: quickswapRouterAddr, factory: quickswapFactoryAddr } =
+    getQuickSwapAddresses(chainId)
 
-  // const UniswapV2Router = ContractFactory.fromSolidity(
-  //   UniswapV2RouterJson,
-  //   deployer
-  // )
-  // const quickRouter = UniswapV2Router.attach(quickswapRouterAddr)
+  const UniswapV2Router = ContractFactory.fromSolidity(
+    UniswapV2RouterJson,
+    deployer
+  )
+  const quickRouter = UniswapV2Router.attach(quickswapRouterAddr)
 
   const daiAddr =
     chainId === 43113
-      ? '0xAc3f8193ecBe9E7F4DeEbf17639e89416FD0C804'
-      : '0xAc3f8193ecBe9E7F4DeEbf17639e89416FD0C804'
+      ? '0x4C45E9e569cb43cd4c0769B17e840CF042898657'
+      : '0x4C45E9e569cb43cd4c0769B17e840CF042898657'
 
-  const wavaxAddr =
+  const usdcAddr =
     chainId === 43113
-      ? '0xd00ae08403B9bbb9124bB305C09058E32C39A48c'
-      : '0xd00ae08403B9bbb9124bB305C09058E32C39A48c'
+      ? '0xb6E26be97D62C043051A6Cdd5Bf6DC63A32192Ad'
+      : '0xb6E26be97D62C043051A6Cdd5Bf6DC63A32192Ad'
 
   // Deploy DAI
   const DAI = await ethers.getContractFactory('DAI')
   const dai = DAI.attach(daiAddr)
   await dai.mint(deployer.address, initialMint)
   console.log('DAI addr: ' + dai.address)
+
+  // Deploy USDC
+  const USDC = await ethers.getContractFactory('USDC')
+  const usdc = USDC.attach(usdcAddr)
+  await usdc.mint(deployer.address, initialMint)
+  console.log('USDC addr: ' + usdc.address)
 
   // Deploy ARTIX
   const ARTIX = await ethers.getContractFactory('ArtixERC20')
@@ -111,24 +116,14 @@ async function main() {
   console.log('Initialize Circulating Supply has been done!')
 
   // Initialize UniswapFactory
-  // const uniswapFactory = new ethers.Contract(
-  //   quickswapFactoryAddr,
-  //   UniswapV2ABI,
-  //   deployer
-  // )
-  // console.log(deployer.address);
-  // console.log('Initialize UniswapV2Factory has been done!')
-  const UniswapV2Factory = await ethers.getContractFactory('UniswapV2Factory');
-  const uniswapFactory = await UniswapV2Factory.deploy(deployer.address);
-  console.log('uniswapFactory address' + uniswapFactory.address)
-
-  const UniswapV2Router02 = await ethers.getContractFactory('UniswapV2Router02');
-  const uniswapRouter = await UniswapV2Router02.deploy(
-    uniswapFactory.address,
-    wavaxAddr
-  );
-  console.log('uniswapRouter address' + uniswapRouter.address)
-
+  const uniswapFactory = new ethers.Contract(
+    quickswapFactoryAddr,
+    UniswapV2ABI,
+    deployer
+  )
+  console.log(deployer.address);
+  console.log('Initialize UniswapV2Factory has been done!')
+ 
   // Deploy LP
   await (await uniswapFactory.createPair(artix.address, dai.address)).wait()
   const lpAddress = await uniswapFactory.getPair(artix.address, dai.address)
@@ -299,9 +294,10 @@ async function main() {
   await sARTIX.setIndex(initialIndex)
   console.log('Initialize sARTIX and set the index has been done!')
 
+
   // set distributor contract and warmup contract
-  await staking.setContract('0', stakingDistributor.address)
-  await staking.setContract('1', stakingWarmup.address)
+  await staking.setContract('0', stakingDistributor)
+  await staking.setContract('1', stakingWarmup)
   await staking.setWarmup(warmupPeriod)
   console.log('Set distributor contract and warmup contract has been done!')
 
@@ -318,63 +314,18 @@ async function main() {
   await treasury.toggle('8', stakingDistributor.address, zeroAddress)
   console.log('Queue and toggle reward manager has been done!')
 
-  // const Treasury = await ethers.getContractFactory('ArtixTreasury')
-  // const treasury = Treasury.attach('0x12239Ec193A208343F7FEa8410b7a10cb7DFf9A6')
-
-  // const IDO = await ethers.getContractFactory('ArtixIDO')
-  // const ido = await IDO.deploy(
-  //   '0xcf2cf9Aee9A2b93a7AF9F2444843AFfDd8C435eb',
-  //   '0x19907af68A173080c3e05bb53932B0ED541f6d20',
-  //   '0x12239Ec193A208343F7FEa8410b7a10cb7DFf9A6',
-  //   '0x72054987656EA1a801656AD0b9c52FB47aF76419',
-  //   '0x3073478d69c4b40ec0BD4BA533536134B633aC71'
-  // )
-  // console.log('IDO: ' + ido.address)
-  // await (
-  //   await ido.whiteListBuyers([
-  //     deployer.getAddress(),
-  //     '0x61329D875252c1dD95a3eB339926AaF0A511Cc74',
-  //   ])
-  // ).wait()
-  // await ido.initialize(
-  //   BigNumber.from(200000).mul(BigNumber.from(10).pow(9)),
-  //   BigNumber.from(5).mul(BigNumber.from(10).pow(18)),
-  //   48 * 60 * 60, // 48 hours
-  //   Math.round(Date.now() / 1000 - 30)
-  // )
-
-  // queue and toggle ido as reserve depositor
-  // await (await treasury.queue('0', ido.address)).wait(1)
-  // await treasury.toggle('0', ido.address, zeroAddress)
-
-  // await (await treasury.queue('4', ido.address)).wait(1)
-  // await treasury.toggle('4', ido.address, zeroAddress)
-
-  // const IDO = await ethers.getContractFactory('ArtixIDO')
-  // const ido = IDO.attach('0xC4d9801372e6800D5dBb03eC907CbdDE437bE627')
-  // await (await ido.disableWhiteList()).wait()
-  // const wallets = []
-  // for (let i = 0; i < 1000; i++) {
-  //   const wallet = ethers.Wallet.createRandom().connect(deployer.provider)
-  //   wallets.push(wallet)
-  // }
-
-  // console.log('whitelisting')
-  // await (await ido.whiteListBuyers(wallets.map((w) => w.address))).wait()
-
   const lp = new ethers.Contract(lpAddress, IUniswapV2Pair, deployer)
   // Approve the treasury to spend DAI
   await Promise.all([
     (await dai.approve(treasury.address, largeApproval)).wait(),
     (await dai.approve(daiBond.address, largeApproval)).wait(),
-    (await dai.approve(uniswapRouter.address, largeApproval)).wait(),
+    (await dai.approve(quickRouter.address, largeApproval)).wait(),
     (await artix.approve(staking.address, largeApproval)).wait(),
     (await artix.approve(stakingHelper.address, largeApproval)).wait(),
-    (await artix.approve(uniswapRouter.address, largeApproval)).wait(),
+    (await artix.approve(quickRouter.address, largeApproval)).wait(),
     (await lp.approve(treasury.address, largeApproval)).wait(),
   ])
   console.log('Approve the treasury to spend DAI has been done!')
-
   const totalIDODaiAmount = 100 * 10000
   const artixMinted = 200000
   const lpArtixAmount = 50000
@@ -391,10 +342,10 @@ async function main() {
     )
   ).wait()
   console.log('Deposit DAI in Treasury has been done!')
-
+  
   // mint lp
   await (
-    await UniswapV2Router02.addLiquidity(
+    await quickRouter.addLiquidity(
       dai.address,
       artix.address,
       ethers.utils.parseEther(String(lpArtixAmount * initialArtixPriceInLP)),
@@ -428,3 +379,6 @@ main()
     console.error(error)
     process.exit(1)
   })
+
+
+  

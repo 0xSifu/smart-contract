@@ -24,7 +24,7 @@ describe('Staking', function () {
   let // Used as default deployer for contracts, asks as owner of contracts.
     deployer,
     // Used as the default user for deposits and trade. Intended to be the default regular user.
-    clam,
+    artix,
     sClam,
     dai,
     treasury,
@@ -38,19 +38,19 @@ describe('Staking', function () {
 
     firstEpochTime = (await deployer.provider.getBlock()).timestamp - 100
 
-    const CLAM = await ethers.getContractFactory('OtterClamERC20')
-    clam = await CLAM.deploy()
-    await clam.setVault(deployer.address)
+    const CLAM = await ethers.getContractFactory('ArtixERC20')
+    artix = await CLAM.deploy()
+    await artix.setVault(deployer.address)
 
     const DAI = await ethers.getContractFactory('DAI')
     dai = await DAI.deploy(0)
 
-    const StakedCLAM = await ethers.getContractFactory('StakedOtterClamERC20')
+    const StakedCLAM = await ethers.getContractFactory('StakedArtixERC20')
     sClam = await StakedCLAM.deploy()
 
-    const Treasury = await ethers.getContractFactory('OtterTreasury')
+    const Treasury = await ethers.getContractFactory('ArtixTreasury')
     treasury = await Treasury.deploy(
-      clam.address,
+      artix.address,
       dai.address,
       zeroAddress,
       zeroAddress,
@@ -58,18 +58,18 @@ describe('Staking', function () {
     )
 
     const StakingDistributor = await ethers.getContractFactory(
-      'OtterStakingDistributor'
+      'ArtixStakingDistributor'
     )
     stakingDistributor = await StakingDistributor.deploy(
       treasury.address,
-      clam.address,
+      artix.address,
       epochLength,
       firstEpochTime
     )
 
-    const Staking = await ethers.getContractFactory('OtterStaking')
+    const Staking = await ethers.getContractFactory('ArtixStaking')
     staking = await Staking.deploy(
-      clam.address,
+      artix.address,
       sClam.address,
       epochLength,
       firstEpochNumber,
@@ -77,10 +77,10 @@ describe('Staking', function () {
     )
 
     // Deploy staking helper
-    const StakingHelper = await ethers.getContractFactory('OtterStakingHelper')
-    stakingHelper = await StakingHelper.deploy(staking.address, clam.address)
+    const StakingHelper = await ethers.getContractFactory('ArtixStakingHelper')
+    stakingHelper = await StakingHelper.deploy(staking.address, artix.address)
 
-    const StakingWarmup = await ethers.getContractFactory('OtterStakingWarmup')
+    const StakingWarmup = await ethers.getContractFactory('ArtixStakingWarmup')
     const stakingWarmup = await StakingWarmup.deploy(
       staking.address,
       sClam.address
@@ -94,7 +94,7 @@ describe('Staking', function () {
 
     await stakingDistributor.addRecipient(staking.address, initialRewardRate)
 
-    await clam.setVault(treasury.address)
+    await artix.setVault(treasury.address)
 
     // queue and toggle reward manager
     await treasury.queue('8', stakingDistributor.address)
@@ -104,7 +104,7 @@ describe('Staking', function () {
     await treasury.queue('0', deployer.address)
     await treasury.toggle('0', deployer.address, zeroAddress)
 
-    await clam.approve(stakingHelper.address, largeApproval)
+    await artix.approve(stakingHelper.address, largeApproval)
     await dai.approve(treasury.address, largeApproval)
 
     // mint 1,000,000 DAI for testing
@@ -123,7 +123,7 @@ describe('Staking', function () {
           BigNumber.from(750000).mul(BigNumber.from(10).pow(9))
         )
       ).to.changeTokenBalance(
-        clam,
+        artix,
         deployer,
         BigNumber.from(25 * 10000).mul(BigNumber.from(10).pow(9))
       )
@@ -348,7 +348,7 @@ describe('Staking', function () {
       await timeAndMine.setTimeIncrease(86400 / 3 + 1)
       await staking.rebase()
       await expect(() => staking.forfeit()).to.changeTokenBalance(
-        clam,
+        artix,
         deployer,
         100 * 1e9
       )

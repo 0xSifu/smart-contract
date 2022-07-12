@@ -6,7 +6,8 @@ const { BigNumber, ContractFactory } = ethers
 // const IUniswapV2Pair = require('./IUniswapV2Pair.json').abi
 // const UniswapV2RouterJson = require('@uniswap/v2-periphery/build/UniswapV2Router02.json')
 // const { getQuickSwapAddresses } = require('./addresses')
-const wavax = "0xD6271B3be783b1EEA2114f5aDfD09b47Fb358AF1"
+const wavax = "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
+const factory = "0x8F50b1687e1517D16fecC0f56E0259d6a72f1Fce"
 daiChainId  = 18
 
 async function main() {
@@ -14,11 +15,11 @@ async function main() {
   const daoAddr = '0xAc36272E4159Efe1160aafA57e578DF139A84C92'
   console.log('Deploying contracts with the account: ' + deployer.address)
 
-  const UniswapV2Factory = await ethers.getContractFactory("UniswapV2Factory")
-  const uniswapv2factory = await UniswapV2Factory.deploy(
-    deployer.address
-  )
-  console.log("Factory : "+ uniswapv2factory.address);
+  // const UniswapV2Factory = await ethers.getContractFactory("UniswapV2Factory")
+  // const uniswapv2factory = await UniswapV2Factory.deploy(
+  //   deployer.address
+  // )
+  // console.log("Factory : "+ uniswapv2factory.address);
 
   const DAI = await ethers.getContractFactory("DAI")
   const dai = await DAI.deploy(
@@ -26,9 +27,15 @@ async function main() {
   )
   console.log("DAI : "+ dai.address)
 
+  const USDC = await ethers.getContractFactory("USDC")
+  const usdc = await USDC.deploy(
+    daiChainId
+  )
+  console.log("USDC : "+ usdc.address)
+
   const UniswapV2Router02 = await ethers.getContractFactory("UniswapV2Router02")
   const uniswapv2router02 = await UniswapV2Router02.deploy(
-    uniswapv2factory.address,
+    factory,
     wavax
   )
   console.log("Router : "+ uniswapv2router02.address);
