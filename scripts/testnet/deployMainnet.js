@@ -1,4 +1,4 @@
-// @dev. This script will deploy this V1.1 of Otter. It will deploy the whole ecosystem.
+// @dev. This script will deploy this V1.1 of Context. It will deploy the whole ecosystem.
 
 const { ethers } = require('hardhat')
 const UniswapV2ABI = require('./IUniswapV2Factory.json').abi
@@ -9,8 +9,7 @@ async function main() {
   console.log('Deploying contracts with the account: ' + deployer.address)
 
   // Initial staking index
-  // const initialIndex = '1000000000'
-  const initialIndex = '1400675709'
+  const initialIndex = '1000000000'
 
   const { provider } = deployer
   const firstEpochTime = 1635897600 // 2021-11-3 00:00 UTC
@@ -38,7 +37,7 @@ async function main() {
   // Min bond price
   const minBondPrice = '600'
 
-  // Max bond payout, 1000 = 1% of CLAM total supply
+  // Max bond payout, 1000 = 1% of CTXT total supply
   const maxBondPayout = '1000'
 
   // DAO fee for bond
@@ -59,11 +58,11 @@ async function main() {
       : '0x5757371414417b8C6CAad45bAeF941aBc7d3Ab32'
   const maiAddr = '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1'
 
-  // Deploy CLAM
-  const CLAM = await ethers.getContractFactory('OtterClamERC20')
-  const clam = CLAM.attach('0x4d6A30EFBE2e9D7A9C143Fce1C5Bb30d9312A465')
-  // const clam = await CLAM.deploy()
-  // console.log('CLAM deployed: ' + clam.address)
+  // Deploy CTXT
+  const CTXT = await ethers.getContractFactory('ContextERC20')
+  const clam = CTXT.attach('0x4d6A30EFBE2e9D7A9C143Fce1C5Bb30d9312A465')
+  // const clam = await CTXT.deploy()
+  // console.log('CTXT deployed: ' + clam.address)
 
   const uniswapFactory = new ethers.Contract(
     quickswapFactoryAddr,
@@ -76,7 +75,7 @@ async function main() {
 
   // Deploy bonding calc
   const BondingCalculator = await ethers.getContractFactory(
-    'OtterBondingCalculator'
+    'ContextBondingCalculator'
   )
   // const bondingCalculator = await BondingCalculator.deploy(clam.address)
   const bondingCalculator = BondingCalculator.attach(
@@ -84,7 +83,7 @@ async function main() {
   )
 
   // Deploy treasury
-  const Treasury = await ethers.getContractFactory('OtterTreasury')
+  const Treasury = await ethers.getContractFactory('ContextTreasury')
   const treasury = await Treasury.attach(
     '0xab328Ca61599974b0f577d1F8AB0129f2842d765'
   )
@@ -99,7 +98,7 @@ async function main() {
 
   // Deploy staking distributor
   const StakingDistributor = await ethers.getContractFactory(
-    'OtterStakingDistributor'
+    'ContextStakingDistributor'
   )
   const stakingDistributor = StakingDistributor.attach(
     '0xD42938418E648b981bA2814b0C8b4F6f35CE61B8'
@@ -112,20 +111,20 @@ async function main() {
   // )
   // await stakingDistributor.deployTransaction.wait()
 
-  // Deploy sCLAM
-  const StakedCLAM = await ethers.getContractFactory('StakedOtterClamERC20')
-  const sCLAM = StakedCLAM.attach('0x3949F058238563803b5971711Ad19551930C8209')
-  // const sCLAM = await StakedCLAM.deploy()
-  // await sCLAM.deployTransaction.wait()
+  // Deploy sCTXT
+  const StakedCTXT = await ethers.getContractFactory('StakedContextERC20')
+  const sCTXT = StakedCTXT.attach('0x3949F058238563803b5971711Ad19551930C8209')
+  // const sCTXT = await StakedCTXT.deploy()
+  // await sCTXT.deployTransaction.wait()
 
   // Deploy Staking
-  const Staking = await ethers.getContractFactory('OtterStaking')
+  const Staking = await ethers.getContractFactory('ContextStaking')
   const staking = await Staking.attach(
     '0xcF2A11937A906e09EbCb8B638309Ae8612850dBf'
   )
   // const staking = await Staking.deploy(
   //   clam.address,
-  //   sCLAM.address,
+  //   sCTXT.address,
   //   epochLengthInSeconds,
   //   firstEpochNumber,
   //   firstEpochTime
@@ -133,18 +132,18 @@ async function main() {
   // await staking.deployTransaction.wait()
 
   // Deploy staking warmpup
-  const StakingWarmup = await ethers.getContractFactory('OtterStakingWarmup')
+  const StakingWarmup = await ethers.getContractFactory('ContextStakingWarmup')
   const stakingWarmup = StakingWarmup.attach(
     '0x314de54E2B64E36F4B0c75079C7FB7f894750014'
   )
   // const stakingWarmup = await StakingWarmup.deploy(
   //   staking.address,
-  //   sCLAM.address
+  //   sCTXT.address
   // )
   // await stakingWarmup.deployTransaction.wait()
 
   // Deploy staking helper
-  const StakingHelper = await ethers.getContractFactory('OtterStakingHelper')
+  const StakingHelper = await ethers.getContractFactory('ContextStakingHelper')
   const stakingHelper = StakingHelper.attach(
     '0x22F587EcF472670c61aa4715d0b76D2fa40A9798'
   )
@@ -155,7 +154,7 @@ async function main() {
   // await stakingHelper.deployTransaction.wait()
 
   // Deploy MAI bond
-  const MAIBond = await ethers.getContractFactory('OtterBondDepository')
+  const MAIBond = await ethers.getContractFactory('ContextBondDepository')
   const maiBond = MAIBond.attach('0x28077992bFA9609Ae27458A766470b03D43dEe8A')
   // const maiBond = await MAIBond.deploy(
   //   clam.address,
@@ -166,7 +165,7 @@ async function main() {
   // )
   // await maiBond.deployTransaction.wait()
 
-  const MaiClamBond = await ethers.getContractFactory('OtterBondDepository')
+  const MaiClamBond = await ethers.getContractFactory('ContextBondDepository')
   // const maiClamBond = MaiClamBond.attach(
   //   '0x79B47c03B02019Af78Ee0de9B0b3Ac0786338a0d'
   // )
@@ -181,20 +180,20 @@ async function main() {
 
   console.log(
     JSON.stringify({
-      sCLAM_ADDRESS: sCLAM.address,
-      CLAM_ADDRESS: clam.address,
-      MAI_ADDRESS: maiAddr,
+      sCTXT_ADDRESS: sCTXT.address,
+      CTXT_ADDRESS: clam.address,
+      DAI_ADDRESS: maiAddr,
       TREASURY_ADDRESS: treasury.address,
-      CLAM_BONDING_CALC_ADDRESS: bondingCalculator.address,
+      CTXT_BONDING_CALC_ADDRESS: bondingCalculator.address,
       STAKING_ADDRESS: staking.address,
       STAKING_HELPER_ADDRESS: stakingHelper.address,
       RESERVES: {
         MAI: maiAddr,
-        MAI_CLAM: lpAddress,
+        DAI_CTXT: lpAddress,
       },
       BONDS: {
         MAI: maiBond.address,
-        MAI_CLAM: maiClamBond.address,
+        DAI_CTXT: maiClamBond.address,
       },
     })
   )
@@ -202,19 +201,19 @@ async function main() {
   // queue and toggle MAI reserve depositor
   // await (await treasury.queue('0', maiBond.address)).wait()
 
-  // queue and toggle MAI-CLAM liquidity depositor
+  // queue and toggle MAI-CTXT liquidity depositor
   // await (await treasury.queue('4', maiClamBond.address)).wait()
 
   // Set bond terms
-  // await (await maiBond.initializeBondTerms(
-  //   maiBondBCV,
-  //   bondVestingLength,
-  //   minBondPrice,
-  //   maxBondPayout,
-  //   bondFee,
-  //   maxBondDebt,
-  //   initialBondDebt
-  // )).wait()
+  await maiBond.initializeBondTerms(
+    maiBondBCV,
+    bondVestingLength,
+    minBondPrice,
+    maxBondPayout,
+    bondFee,
+    maxBondDebt,
+    initialBondDebt
+  )
   // await (await maiClamBond.initializeBondTerms(
   //   '40',
   //   bondVestingLength,
@@ -229,16 +228,16 @@ async function main() {
   // await (await maiBond.setStaking(stakingHelper.address, true)).wait()
   await (await maiClamBond.setStaking(stakingHelper.address, true)).wait()
 
-  // Initialize sCLAM and set the index
-  // await (await sCLAM.initialize(staking.address)).wait()
-  // await (await sCLAM.setIndex(initialIndex)).wait()
+  // Initialize sCTXT and set the index
+  // await (await sCTXT.initialize(staking.address)).wait()
+  // await (await sCTXT.setIndex(initialIndex)).wait()
 
   // set distributor contract and warmup contract
   // await (await staking.setContract('0', stakingDistributor.address)).wait()
   // await (await staking.setContract('1', stakingWarmup.address)).wait()
   // await (await staking.setWarmup(warmupPeriod)).wait()
 
-  // Set treasury for CLAM token
+  // Set treasury for CTXT token
   // await (await clam.setVault(treasury.address)).wait()
 
   // Add staking contract as distributor recipient
@@ -251,7 +250,7 @@ async function main() {
   //  await treasury.toggle('0', maiBond.address, zeroAddress)
   //  await (await treasury.toggle('4', maiClamBond.address, zeroAddress)).wait()
   //  await treasury.toggle('8', stakingDistributor.address, zeroAddress)
-  // await treasury.queue('9', sCLAM.address)
+  // await treasury.queue('9', sCTXT.address)
 }
 
 main()

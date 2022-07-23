@@ -3,8 +3,8 @@ const { ethers } = require("hardhat");
 async function main() {
   const [deployer] = await ethers.getSigners();
 
-  const stakingAddress = '0x4AdD658234f6b5FB217b7d3DB8d66932b2921547';
-  const Staking = await ethers.getContractFactory("OtterStaking");
+  const stakingAddress = '0x6A7848e86baC5F917466a42556fd7C958B96304F';
+  const Staking = await ethers.getContractFactory("ArtixStakingRev1");
   const staking = Staking.attach(stakingAddress)
   const provider = deployer.provider;
   const block = await provider.getBlock()

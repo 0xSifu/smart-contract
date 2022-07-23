@@ -19,7 +19,6 @@ interface IDistributor {
 }
 
 contract ArtixStaking is Ownable, IArtixStaking {
-
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -102,7 +101,9 @@ contract ArtixStaking is Ownable, IArtixStaking {
         Claim memory info = warmupInfo[ _recipient ];
         if ( epoch.number >= info.expiry && info.expiry != 0 ) {
             delete warmupInfo[ _recipient ];
-            IWarmup( warmupContract ).retrieve( _recipient, IsARTIX( sARTIX ).balanceForGons( info.gons ) );
+            IWarmup( warmupContract ).retrieve( 
+                _recipient, 
+                IsARTIX( sARTIX ).balanceForGons( info.gons ) );
         }
     }
 

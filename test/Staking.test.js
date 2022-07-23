@@ -25,7 +25,7 @@ describe('Staking', function () {
     deployer,
     // Used as the default user for deposits and trade. Intended to be the default regular user.
     artix,
-    sClam,
+    sArtix,
     dai,
     treasury,
     stakingDistributor,
@@ -38,15 +38,15 @@ describe('Staking', function () {
 
     firstEpochTime = (await deployer.provider.getBlock()).timestamp - 100
 
-    const CLAM = await ethers.getContractFactory('ArtixERC20')
-    artix = await CLAM.deploy()
+    const ARTIX = await ethers.getContractFactory('ArtixERC20')
+    artix = await ARTIX.deploy()
     await artix.setVault(deployer.address)
 
     const DAI = await ethers.getContractFactory('DAI')
     dai = await DAI.deploy(0)
 
-    const StakedCLAM = await ethers.getContractFactory('StakedArtixERC20')
-    sClam = await StakedCLAM.deploy()
+    const StakedARTIX = await ethers.getContractFactory('StakedArtixERC20')
+    sArtix = await StakedARTIX.deploy()
 
     const Treasury = await ethers.getContractFactory('ArtixTreasury')
     treasury = await Treasury.deploy(
@@ -70,7 +70,7 @@ describe('Staking', function () {
     const Staking = await ethers.getContractFactory('ArtixStaking')
     staking = await Staking.deploy(
       artix.address,
-      sClam.address,
+      sArtix.address,
       epochLength,
       firstEpochNumber,
       firstEpochTime
@@ -83,11 +83,11 @@ describe('Staking', function () {
     const StakingWarmup = await ethers.getContractFactory('ArtixStakingWarmup')
     const stakingWarmup = await StakingWarmup.deploy(
       staking.address,
-      sClam.address
+      sArtix.address
     )
 
-    await sClam.initialize(staking.address)
-    await sClam.setIndex(initialIndex)
+    await sArtix.initialize(staking.address)
+    await sArtix.setIndex(initialIndex)
 
     await staking.setContract('0', stakingDistributor.address)
     await staking.setContract('1', stakingWarmup.address)
@@ -115,7 +115,7 @@ describe('Staking', function () {
   })
 
   describe('treasury deposit', function () {
-    it('should get CLAM', async function () {
+    it('should get ARTIX', async function () {
       await expect(() =>
         treasury.deposit(
           BigNumber.from(100 * 10000).mul(BigNumber.from(10).pow(18)),
@@ -131,7 +131,7 @@ describe('Staking', function () {
   })
 
   describe('stake', function () {
-    it('should get equally sClam tokens', async function () {
+    it('should get equally sArtix tokens', async function () {
       await treasury.deposit(
         BigNumber.from(100 * 10000).mul(BigNumber.from(10).pow(18)),
         dai.address,
@@ -144,7 +144,7 @@ describe('Staking', function () {
           deployer.address
         )
       ).to.changeTokenBalance(
-        sClam,
+        sArtix,
         deployer,
         BigNumber.from(100).mul(BigNumber.from(10).pow(9))
       )
@@ -165,12 +165,12 @@ describe('Staking', function () {
       )
 
       await expect(() => staking.rebase()).to.changeTokenBalance(
-        sClam,
+        sArtix,
         deployer,
         0
       )
 
-      expect(await sClam.index()).to.eq('1000000000')
+      expect(await sArtix.index()).to.eq('1000000000')
     })
 
     it('should rebase after epoch end', async function () {
@@ -187,7 +187,7 @@ describe('Staking', function () {
 
       // 0 -> 1: no reward
       await expect(() => staking.rebase()).to.changeTokenBalance(
-        sClam,
+        sArtix,
         deployer,
         0
       )
@@ -200,11 +200,11 @@ describe('Staking', function () {
 
       // 1 -> 2
       await expect(() => staking.rebase()).to.changeTokenBalance(
-        sClam,
+        sArtix,
         deployer,
         distribute
       )
-      expect(await sClam.index()).to.eq('8500000000')
+      expect(await sArtix.index()).to.eq('8500000000')
     })
 
     it('should not rebase before epoch end', async function () {
@@ -221,7 +221,7 @@ describe('Staking', function () {
 
       // 0 -> 1: no reward
       await expect(() => staking.rebase()).to.changeTokenBalance(
-        sClam,
+        sArtix,
         deployer,
         0
       )
@@ -231,7 +231,7 @@ describe('Staking', function () {
 
       // 1 -> 1
       await expect(() => staking.rebase()).to.changeTokenBalance(
-        sClam,
+        sArtix,
         deployer,
         0
       )
@@ -253,7 +253,7 @@ describe('Staking', function () {
 
       // 0 -> 1: no reward
       await expect(() => staking.rebase()).to.changeTokenBalance(
-        sClam,
+        sArtix,
         deployer,
         0
       )
@@ -263,11 +263,11 @@ describe('Staking', function () {
 
       // 1 -> 2
       await expect(() => staking.rebase()).to.changeTokenBalance(
-        sClam,
+        sArtix,
         deployer,
         '750000000000'
       )
-      expect(await sClam.index()).to.eq('8500000000')
+      expect(await sArtix.index()).to.eq('8500000000')
 
       // set distributor to zero
       staking.setContract(0, zeroAddress)
@@ -276,7 +276,7 @@ describe('Staking', function () {
       await timeAndMine.setTimeIncrease(86400 / 3 + 1)
 
       await expect(() => staking.rebase()).to.changeTokenBalance(
-        sClam,
+        sArtix,
         deployer,
         '752250000000'
       )
@@ -284,7 +284,7 @@ describe('Staking', function () {
       // 3 -> 4, no reward
       await timeAndMine.setTimeIncrease(86400 / 3 + 1)
       await expect(() => staking.rebase()).to.changeTokenBalance(
-        sClam,
+        sArtix,
         deployer,
         0
       )
@@ -305,7 +305,7 @@ describe('Staking', function () {
 
       await expect(() =>
         stakingHelper.stake(100 * 1e9, deployer.address)
-      ).to.changeTokenBalance(sClam, deployer, 0)
+      ).to.changeTokenBalance(sArtix, deployer, 0)
 
       const [deposit, _, expiry, lock] = await staking.warmupInfo(
         deployer.address
@@ -317,7 +317,7 @@ describe('Staking', function () {
       await timeAndMine.setTimeIncrease(86400 / 3 + 1)
       await staking.rebase()
       await expect(() => staking.claim(deployer.address)).to.changeTokenBalance(
-        sClam,
+        sArtix,
         deployer,
         0
       )
@@ -325,7 +325,7 @@ describe('Staking', function () {
       await timeAndMine.setTimeIncrease(86400 / 3 + 1)
       await staking.rebase()
       await expect(() => staking.claim(deployer.address)).to.changeTokenBalance(
-        sClam,
+        sArtix,
         deployer,
         '1602250000000'
       )
@@ -336,7 +336,7 @@ describe('Staking', function () {
 
       await expect(() =>
         stakingHelper.stake(100 * 1e9, deployer.address)
-      ).to.changeTokenBalance(sClam, deployer, 0)
+      ).to.changeTokenBalance(sArtix, deployer, 0)
 
       const [deposit, _, expiry, lock] = await staking.warmupInfo(
         deployer.address

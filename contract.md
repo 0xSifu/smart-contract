@@ -30,7 +30,7 @@ ARTIX deployed: 0x447b377fFEC0dC2016b5c65Ee7326215259A9DFb
 ARTIX circulating Supply: 0x2A55359e81f38BDfC9695FE935397291cC621393
 Initialize Circulating Supply has been done!
 Initialize UniswapV2Factory has been done!
-get pair: 0x9ff4F7eC4b3596b76a1935b2A0A3F79d91e96e19
+get pair UniswapV2: 0x9ff4F7eC4b3596b76a1935b2A0A3F79d91e96e19
 treasury deployed: 0x918a227d683b76D35530473CAaAB6c1c033c9E85
 Staking Distributor: 0xb10B34522F628DFd2F37E0142395bc779827cBc4
 sARTIX: 0x109bA330399c4f2C6161bB82aaB3F39B7D349536
@@ -46,11 +46,66 @@ Queue and toggle DAI-ARTIX liquidity depositor has been done!
 Set bond terms has been done!
 Set staking for bonds has been done!
 Initialize sARTIX and set the index has been done!
-<<<<<<< HEAD
 
-=======
-Set distributor contract and warmup contract has been done!
+
+address --> helper
+token utama --> staking address
+helper --> staking add
+staking add --> warm
+
+
+=========================================================================================
+
+USDC: 0x7cE1771c80d88372259A7350b3e3666B06ce3F9d
+Artix : 0x320B596A23fEb6Fe06fb8c56C1c902BB34055DA8
+Circulating Supply: 0x3fAd6092b7f429042AA508d95306FFc3E4B49a73
+LP Uniswap: 0x6b9515C18cE424e44d321C1b8327434AD311429e
+Bonding Calculator: 0x47AE4ECA93A0004c58cF409a704bE2E847e7DA3a
+treasury deployed: 0x215d9d3b8B92c97D354182358f109EF367b1deF0
+Staking Distributor: 0xE826Dac36CfB21c361095d55F7EF75f74d33B69A
+sARTIX: 0x0561525F2E7d36445dEdDe0CDfBaF1Cc5C87499D
+STAKING: 0x6A7848e86baC5F917466a42556fd7C958B96304F
+Staking Warmup: 0x7B209724D9800017691D89a9fb7ac412F5AC3b21
+Staking Helper: 0x3E27F051c50a13bc97136b61e3aE7fC6E5e79793
+Redeem Staking Helper: 0x61dD1De6eAfE4a2235C4081c6631BeB462269260
+USDC BOND: 0xa5E13BfF79B317995Ed415eE835F9bca39692A71
+USDC-ARTIX BOND: 0x7bEfA1E9689Da5c18E1C6711B1593e8e36c48DEe
+IDO: 0x96c24275e0c93bE8b7f02654a167cfBbf72D1389
+
+{
+  "sARTIX_ADDRESS": "0x0561525F2E7d36445dEdDe0CDfBaF1Cc5C87499D",
+  "ARTIX_ADDRESS": "0x320B596A23fEb6Fe06fb8c56C1c902BB34055DA8",
+  "USDC_ADDRESS": "0x7cE1771c80d88372259A7350b3e3666B06ce3F9d",
+  "TREASURY_ADDRESS": "0x215d9d3b8B92c97D354182358f109EF367b1deF0",
+  "ARTIX_BONDING_CALC_ADDRESS": "0x47AE4ECA93A0004c58cF409a704bE2E847e7DA3a",
+  "STAKING_ADDRESS": "0x6A7848e86baC5F917466a42556fd7C958B96304F",
+  "STAKING_HELPER_ADDRESS": "0x3E27F051c50a13bc97136b61e3aE7fC6E5e79793",
+  "REDEEM_STAKING_HELPER": "0x61dD1De6eAfE4a2235C4081c6631BeB462269260",
+  "RESERVES": {
+    "USDC": "0x7cE1771c80d88372259A7350b3e3666B06ce3F9d",
+    "USDC_ARTIX": "0x6b9515C18cE424e44d321C1b8327434AD311429e"
+  },
+  "BONDS": {
+    "USDC": "0xa5E13BfF79B317995Ed415eE835F9bca39692A71",
+    "USDC_ARTIX": "0x7bEfA1E9689Da5c18E1C6711B1593e8e36c48DEe"
+  },
+  "IDO": "0x96c24275e0c93bE8b7f02654a167cfBbf72D1389",
+  "ARTIX_CIRCULATING_SUPPLY": "0x3fAd6092b7f429042AA508d95306FFc3E4B49a73"
+}
+
+Queue and toggle USDC reserve depositor has been done!
+Queue and toggle USDC-ARTIX liquidity depositor has been done!
+Set bond terms has been done!
+Set staking for bonds has been done!
+Set openblock staking bonds USDC-BOND has been done!
+Set openblock staking bonds LP ARTIX-USDC BOND has been done!
+Initialize sARTIX and set the index has been done!
+Set warmup period, openblock, rebase on Staking Contract has been done!
 Set treasury for ARTIX token has been done!
 Add staking contract as distributor recipient has been done!
 Queue and toggle reward manager has been done!
->>>>>>> 54462d6948e1122d10d09429b6473e1c66f1fcc0
+Set bond contract --> redeem helper has been done!
+Approve the treasury to spend USDC has been done!
+{ usdcInTreasury: 250000, profit: 0 }
+Deposit USDC in Treasury has been done!
+Mint LP has been done!

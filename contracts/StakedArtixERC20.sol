@@ -149,7 +149,7 @@ contract StakedArtixERC20 is ERC20Permit, Ownable {
         return _totalSupply.sub( balanceOf( stakingContract ) );
     }
 
-    function index() public view returns ( uint ) {
+    function index() public view returns ( uint256 ) {
         return balanceForGons( INDEX );
     }
 

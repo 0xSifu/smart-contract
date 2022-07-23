@@ -1,0 +1,72 @@
+let addresses = {
+  sCTXT_ADDRESS: '0xAAc144Dc08cE39Ed92182dd85ded60E5000C9e67',
+  CTXT_ADDRESS: '0xC250e9987A032ACAC293d838726C511E6E1C029d',
+  OLD_CTXT_ADDRESS: '0x4d6A30EFBE2e9D7A9C143Fce1C5Bb30d9312A465',
+  OLD_SCTXT_ADDRESS: '0x3949F058238563803b5971711Ad19551930C8209',
+  DAI_ADDRESS: '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1',
+  TREASURY_ADDRESS: '0x8ce47D56EAa1299d3e06FF3E04637449fFb01C9C',
+  CTXT_BONDING_CALC_ADDRESS: '0x651125e097D7e691f3Df5F9e5224f0181E3A4a0E',
+  STAKING_ADDRESS: '0xC8B0243F350AA5F8B979b228fAe522DAFC61221a',
+  OLD_STAKING_ADDRESS: '0xcF2A11937A906e09EbCb8B638309Ae8612850dBf',
+  STAKING_HELPER_ADDRESS: '0x76B38319483b570B4BCFeD2D35d191d3c9E01691',
+  MIGRATOR: '0x4dF64BBe830168Ed257D0a1FA52900E038a37c4c',
+  RESERVES: {
+    MAI: '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1',
+    OLD_DAI_CTXT: '0x8094f4C9a4C8AD1FF4c6688d07Bd90f996C7CA21',
+    DAI_CTXT: '0x1581802317f32A2665005109444233ca6E3e2D68',
+  },
+  BONDS: {
+    OLD_MAI: '0x28077992bFA9609Ae27458A766470b03D43dEe8A',
+    MAI: '0x603A74Fd527b85E0A1e205517c1f24aC71f5C263',
+    OLD_DAI_CTXT: '0x64c766f9A4936c3a4b51C55Ea5C4854E19766035',
+    DAI_CTXT: '0x706587BD39322A6a78ddD5491cDbb783F8FD983E',
+  },
+  CTXT_CIRCULATING_SUPPLY: '0x99ee91871cf39A44E3Fc842541274d7eA05AE4b3',
+}
+
+const { BigNumber } = ethers
+const [deployer] = await ethers.getSigners()
+const IUniswapV2Pair = require('./scripts/IUniswapV2Pair.json').abi
+
+const lp = new ethers.Contract(
+  addresses.RESERVES.DAI_CTXT,
+  IUniswapV2Pair,
+  deployer
+)
+const CTXT = await ethers.getContractFactory('ContextERC20')
+const clam = await CTXT.attach(addresses.CTXT_ADDRESS)
+
+const DAI = await ethers.getContractFactory('DAI')
+const dai = DAI.attach(addresses.DAI_ADDRESS)
+
+const Treasury = await ethers.getContractFactory('ContextTreasury')
+const treasury = Treasury.attach(addresses.TREASURY_ADDRESS)
+
+const Staking = await ethers.getContractFactory('ContextStaking')
+const staking = Staking.attach(addresses.STAKING_ADDRESS)
+
+const StakingDistributor = await ethers.getContractFactory(
+  'ContextStakingDistributor'
+)
+const stakingDistributor = StakingDistributor.attach(
+  await staking.distributor()
+)
+
+const DAIBond = await ethers.getContractFactory('ContextBondDepository')
+const daiBond = DAIBond.attach(addresses.BONDS.DAI)
+
+const LPBond = await ethers.getContractFactory('ContextBondDepository')
+const lpBond = LPBond.attach(addresses.BONDS.DAI_CTXT)
+
+const Migrator = await ethers.getContractFactory('ClamTokenMigrator')
+const migrator = Migrator.attach(addresses.MIGRATOR)
+
+module.exports = {
+  lp,
+  clam,
+  dai,
+  treasury,
+  staking,
+  daiBond,
+  lpBond,
+}

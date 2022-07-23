@@ -17,15 +17,16 @@ async function main() {
 
   const { provider } = deployer
   // TODO: set this to launch date
-  const firstEpochTime = (await provider.getBlock()).timestamp + 30 * 60
+  // const firstEpochTime = (await provider.getBlock()).timestamp - 100
+  const firstEpochTime = 1658580619 //July 23, 2022 7:50:19 PM GMT+07:00
   console.log('First epoch timestamp: ' + firstEpochTime)
 
   // What epoch will be first epoch
   const firstEpochNumber = '1'
 
   // How many seconds are in each epoch
-  // const epochLengthInSeconds = 86400 / 3
-  const epochLengthInSeconds = 60 * 10
+  const epochLengthInSeconds = 86400 / 3
+  // const epochLengthInSeconds = 60 * 10
 
   // Initial reward rate for epoch
   const initialRewardRate = '5000'
@@ -33,14 +34,14 @@ async function main() {
   // Ethereum 0 address, used when toggling changes in treasury
   const zeroAddress = '0x0000000000000000000000000000000000000000'
 
-  // Large number for approval for DAI
+  // Large number for approval for USDC
   const largeApproval = '100000000000000000000000000000000'
 
-  // Initial mint for DAI (10,000,000)
+  // Initial mint for USDC (10,000,000)
   const initialMint = '10000000000000000000000000'
 
-  // DAI bond BCV
-  const daiBondBCV = '300'
+  // USDC bond BCV
+  const usdcBondBCV = '300'
 
   // Bond vesting length in seconds.
   const bondVestingLength = 5 * 24 * 3600
@@ -62,6 +63,10 @@ async function main() {
 
   const warmupPeriod = '3'
 
+  const openBlock = '9754000'
+
+  const openBlock2 = '0'
+
   const chainId = (await provider.getNetwork()).chainId
   console.log("GET CHAIN ID : "+ chainId)
 
@@ -74,143 +79,268 @@ async function main() {
   )
   const quickRouter = UniswapV2Router.attach(quickswapRouterAddr)
 
-  const daiAddr =
-    chainId === 43113
-      ? '0x4C45E9e569cb43cd4c0769B17e840CF042898657'
-      : '0x4C45E9e569cb43cd4c0769B17e840CF042898657'
+//   const usdcAddr =
+//     chainId === 43113
+//       ? '0x7cE1771c80d88372259A7350b3e3666B06ce3F9d'
+//       : '0x7cE1771c80d88372259A7350b3e3666B06ce3F9d'
 
   const usdcAddr =
     chainId === 43113
-      ? '0xb6E26be97D62C043051A6Cdd5Bf6DC63A32192Ad'
-      : '0xb6E26be97D62C043051A6Cdd5Bf6DC63A32192Ad'
+      ? '0xDeBb4C4e1360844a3C531c3f16698B87813D1efa'
+      : '0xDeBb4C4e1360844a3C531c3f16698B87813D1efa'
 
-  const routerAddr =
-    chainId === 43113
-      ? '0xA262Fded6d70595FDd52C5E5B3faECe4a286Bf5D'
-      : '0xA262Fded6d70595FDd52C5E5B3faECe4a286Bf5D'
+  // Deploy USDC
+//   const USDC = await ethers.getContractFactory('USDC')
+//   const usdc = USDC.attach(usdcAddr)
+//   await usdc.mint(deployer.address, initialMint)
+//   console.log('USDC addr: ' + usdc.address)
 
-  const Router = await ethers.getContractFactory('UniswapV2Router02')
-  const router = Router.attach(routerAddr)
-  // Deploy DAI
-  const DAI = await ethers.getContractFactory('DAI')
-  const dai = DAI.attach(daiAddr)
-//   await dai.mint(deployer.address, initialMint)
-//   console.log('DAI addr: ' + dai.address)
+  // Deploy USDC
+  const USDC = await ethers.getContractFactory('USDC')
+  const usdc = USDC.attach(usdcAddr)
+//   await usdc.mint(deployer.address, initialMint)
+//   console.log('USDC addr: ' + usdc.address)
 
-  const stakingDistributor = '0xb10B34522F628DFd2F37E0142395bc779827cBc4'
-  const stakingWarmup      = '0xC9Dd57AEfFe6951d378ed26500b706C94d3D251C'
-  const stakingAddr        = '0xAc4c7e1ae5A5EfffF2785651075b8381c556F9B4'
-  const artixAddr          = '0x447b377fFEC0dC2016b5c65Ee7326215259A9DFb'
-  const treasury           = '0x918a227d683b76D35530473CAaAB6c1c033c9E85'
-  const daiBond            = '0xDAb3d7EcE8bDb5572f3A029853A4fa5d720428F3'
-  const stakingHelper      = '0xdaC539715e398Fc2eA5701373EBA9b292796519f'
+  // Deploy ARTIX
+  const ARTIX = await ethers.getContractFactory('ArtixERC20TokenRev1')
+  const artix = await ARTIX.attach('0xd6553832b7f22b4a9c34fa541eDae5C4b60ABbd8')
 
-  const Staking = await ethers.getContractFactory('ArtixStaking')
-  const staking = Staking.attach(stakingAddr)
+  // Deploy Circulating Supply
+  const ArtixCirculatingSupply = await ethers.getContractFactory('ArtixCirculatingSupply')
+  const artixCirculatingSupply = await ArtixCirculatingSupply.attach('0x8341a15b27f9C0C7307014b8803c32e9DfdC1C5a')
 
-  const ARTIX = await ethers.getContractFactory('ArtixERC20')
-  const artix = ARTIX.attach(artixAddr)
-
-  const StakingDistributor = await ethers.getContractFactory('ArtixStakingDistributor')
-  const stakingDistributorContract = StakingDistributor.attach(stakingDistributor)
-
-  const Treasury = await ethers.getContractFactory('ArtixTreasury')
-  const treasuryContract = Treasury.attach(treasury)
-
-  const DAIBond = await ethers.getContractFactory('ArtixBondDepository')
-  const daiBondContract = DAIBond.attach(daiBond)
-
-//   // set distributor contract and warmup contract
-//   await staking.setContract('0', stakingDistributor)
-//   await staking.setContract('1', stakingWarmup)
-//   await staking.setWarmup(warmupPeriod)
-//   console.log('Set distributor contract and warmup contract has been done!')
-
-//   // Set treasury for ARTIX token
-//   await artix.setVault(treasury)
-//   console.log('Set treasury for ARTIX token has been done!')
-
-//   // Add staking contract as distributor recipient
-//   await stakingDistributorContract.addRecipient(stakingAddr, initialRewardRate)
-//   console.log('Add staking contract as distributor recipient has been done!')
-
-//   // queue and toggle reward manager
-//   await (await treasuryContract.queue('8', stakingDistributor)).wait(1)
-//   await treasuryContract.toggle('8', stakingDistributor, zeroAddress)
-//   console.log('Queue and toggle reward manager has been done!')
-
+  // Initialize UniswapFactory
   const uniswapFactory = new ethers.Contract(
     quickswapFactoryAddr,
     UniswapV2ABI,
     deployer
   )
-  const lpAddress = await uniswapFactory.getPair(artixAddr, daiAddr)
+ 
+  // Deploy LP
+  // await (await uniswapFactory.createPair(artix.address, usdc.address)).wait()
+  const lpAddress = await uniswapFactory.attach('0x0A81F75f938B3EC852DCe2de749F62E042E14Ae2')
 
-  const lp = new ethers.Contract(lpAddress, IUniswapV2Pair, deployer)
-  // Approve the treasury to spend DAI
-  await Promise.all([
-    (await dai.approve(treasury, largeApproval)).wait(),
-    (await dai.approve(daiBond, largeApproval)).wait(),
-    (await dai.approve(routerAddr, largeApproval)).wait(),
-    (await artix.approve(stakingAddr, largeApproval)).wait(),
-    (await artix.approve(stakingHelper, largeApproval)).wait(),
-    (await artix.approve(routerAddr, largeApproval)).wait(),
-    (await lp.approve(treasury, largeApproval)).wait(),
-  ])
-  console.log('Approve the treasury to spend DAI has been done!')
-  const totalIDODaiAmount = 100 * 10000
+  // Deploy bonding calc
+  const BondingCalculator = await ethers.getContractFactory(
+    'ArtixBondingCalculatorRev1'
+  )
+  const bondingCalculator = await BondingCalculator.attach('0xe207E13Cf63C25704a8855646f7E2409e42CA48a')
+  // console.log('bondingCalculator :'+ bondingCalculator.address)
+
+  // Deploy treasury
+  const Treasury = await ethers.getContractFactory('ArtixTreasuryRev1')
+  const treasury = await Treasury.attach('0x99cD2810c80cC32d0D27055B0bcAB9F9f3cEfed8')
+
+  // Deploy staking distributor
+  const StakingDistributor = await ethers.getContractFactory('ArtixDistributorRev1')
+  const stakingDistributor = await StakingDistributor.attach('0x7eeb9f729c0741CD4E404D7E15c4Dfc803cc9154')
+
+  // Deploy sARTIX
+  const StakedARTIX = await ethers.getContractFactory('sArtixRev1')
+  const sARTIX = await StakedARTIX.attach('0x0748D9f5d330C291613B67Fd8bcF46331EC4a796')
+  // await sARTIX.rebase()
+
+  // Deploy Staking
+  const Staking = await ethers.getContractFactory('ArtixStakingRev1')
+  const staking = await Staking.attach('0xA7FEAcadf686291CE9AE59a89B8062Cac0292Bca')
+  // console.log('Rebase :'+ staking);
+  
+
+  // Deploy staking warmpup
+  const StakingWarmup = await ethers.getContractFactory('ArtixStakingWarmup')
+  const stakingWarmup = await StakingWarmup.attach('0xEF22edC244b640Db6B5E077013844Aab96AbBa2A')
+
+  // Deploy staking helper
+  const StakingHelper = await ethers.getContractFactory('ArtixStakingHelperRev1')
+  const stakingHelper = await StakingHelper.attach('0x5cc653d7d1259f6ef62E5DaFC2420De1418A1005')
+
+  // Deploy RedeemStaking helper
+  const RedeemStakingHelper = await ethers.getContractFactory('ArtixRedeemHelperRev1')
+  const redeemStakingHelper = await RedeemStakingHelper.attach('0x660420441A151e1D18431d450ac0Fa4Ef81116F0')
+
+   // Deploy USDC bond
+   const USDCBond = await ethers.getContractFactory('USDCArtixBondDepository')
+   const usdcBond = await USDCBond.attach('0x5bBF00F438C60E9C0f2c50Fcf126176B0751Cfa8')
+
+  // Deploy USDC-ARTIX BOND
+  const UsdcArtixBond = await ethers.getContractFactory('USDCLPArtixBondDepository')
+  const usdcArtixBond = await UsdcArtixBond.attach('0xa3bD65e35802962f288f663685972d410B2daaBa')
+
+  // // Deploy IDO
+  // const IDO = await ethers.getContractFactory('ArtixIDO')
+  // const ido = await IDO.attach('0x4B3584A9ec3fbECEcf4E240BFb0e86EFd01128b9')
+
+  // console.log(
+  //   JSON.stringify({
+  //     sARTIX_ADDRESS: sARTIX.address,
+  //     ARTIX_ADDRESS: artix.address,
+  //     USDC_ADDRESS: usdc.address,
+  //     TREASURY_ADDRESS: treasury.address,
+  //     ARTIX_BONDING_CALC_ADDRESS: bondingCalculator.address,
+  //     STAKING_ADDRESS: staking.address,
+  //     STAKING_HELPER_ADDRESS: stakingHelper.address,
+  //     REDEEM_STAKING_HELPER: redeemStakingHelper.address,
+  //     RESERVES: {
+  //       USDC: usdc.address,
+  //       USDC_ARTIX: lpAddress.address,
+  //     },
+  //     BONDS: {
+  //       USDC: usdcBond.address,
+  //       USDC_ARTIX: usdcArtixBond.address,
+  //     },
+  //     ARTIX_CIRCULATING_SUPPLY: artixCirculatingSupply.address,
+  //   })
+  // )
+
+  // // queue and toggle USDC reserve depositor
+  // await (await treasury.queue('0', usdcBond.address)).wait()
+  // await treasury.toggle('0', usdcBond.address, zeroAddress)
+
+  // await (await treasury.queue('0', deployer.address)).wait()
+  // await treasury.toggle('0', deployer.address, zeroAddress)
+  // console.log('Queue and toggle USDC reserve depositor has been done!')
+
+
+  // // queue and toggle USDC-ARTIX liquidity depositor
+  // await (await treasury.queue('4', usdcArtixBond.address)).wait()
+  // await treasury.toggle('4', usdcArtixBond.address, zeroAddress)
+
+  // await (await treasury.queue('4', deployer.address)).wait()
+  // await treasury.toggle('4', deployer.address, zeroAddress)
+  // console.log('Queue and toggle USDC-ARTIX liquidity depositor has been done!')
+
+  // // Set bond terms
+  // await usdcBond.initializeBondTerms(
+  //   usdcBondBCV,
+  //   bondVestingLength,
+  //   minBondPrice,
+  //   maxBondPayout,
+  //   bondFee,
+  //   maxBondDebt,
+  //   initialBondDebt
+  // )
+  // await usdcArtixBond.initializeBondTerms(
+  //   '100',
+  //   bondVestingLength,
+  //   minBondPrice,
+  //   maxBondPayout,
+  //   bondFee,
+  //   maxBondDebt,
+  //   initialBondDebt
+  // )
+  // console.log('Set bond terms has been done!')
+
+  // // Set staking for bonds
+  // await usdcBond.setStaking(staking.address, true)
+  // await usdcArtixBond.setStaking(staking.address, true)
+  // console.log('Set staking for bonds has been done!')
+
+  // // Set openblock staking bonds USDC-BOND
+  // const openblockbond = '9754000'
+  // const openblockbond2 = '19754000'
+  // await usdcBond.setOpenBlock(openblockbond)
+  // await usdcBond.setOpenBlock(openblockbond2)
+  // await usdcBond.setOpenBlock(openblockbond)
+  // console.log('Set openblock staking bonds USDC-BOND has been done!')
+
+  // // Set openblock staking bonds LP ARTIX-USDC BONDS
+  // await usdcArtixBond.setOpenBlock(openblockbond)
+  // console.log('Set openblock staking bonds LP ARTIX-USDC BOND has been done!')
+
+  // // Initialize sARTIX and set the index
+  // await sARTIX.initialize(staking.address)
+  // await sARTIX.setIndex(initialIndex)
+  // console.log('Initialize sARTIX and set the index has been done!')
+
+
+  // // set distributor contract and warmup contract
+  // await staking.setContract('0', stakingDistributor.address)
+  // await staking.setWarmup(warmupPeriod)
+  // await staking.setOpenBlock(openBlock)
+  // await staking.setOpenBlock(openBlock2)
+  // await staking.setOpenBlock(openBlock)
+  // await staking.rebase()
+  // console.log('Set warmup period, openblock, rebase on Staking Contract has been done!')
+
+  // // Set treasury for ARTIX token
+  // await artix.setVault(treasury.address)
+  // console.log('Set treasury for ARTIX token has been done!')
+
+  // Add staking contract as distributor recipient
+  // await stakingDistributor.addRecipient(staking.address, initialRewardRate)
+  // console.log('Add staking contract as distributor recipient has been done!')
+
+  // // queue and toggle reward manager
+  // await (await treasury.queue('8', stakingDistributor.address)).wait(1)
+  // await treasury.toggle('8', stakingDistributor.address, zeroAddress)
+  // console.log('Queue and toggle reward manager has been done!')
+
+  // Set redeem helper
+  // await redeemStakingHelper.addBondContract(usdcBond.address)
+  // await redeemStakingHelper.addBondContract(usdcArtixBond.address)
+  // console.log('Set bond contract --> redeem helper has been done!')
+
+
+  const lp = new ethers.Contract(lpAddress.address, IUniswapV2Pair, deployer)
+  // // Approve the treasury to spend USDC
+  // await Promise.all([
+  //   (await usdc.approve(treasury.address, largeApproval)).wait(),
+  //   (await usdc.approve(usdcBond.address, largeApproval)).wait(),
+  //   (await usdc.approve(quickRouter.address, largeApproval)).wait(),
+  //   (await artix.approve(staking.address, largeApproval)).wait(),
+  //   (await artix.approve(stakingHelper.address, largeApproval)).wait(),
+  //   (await artix.approve(quickRouter.address, largeApproval)).wait(),
+  //   (await lp.approve(treasury.address, largeApproval)).wait(),
+  // ])
+  // console.log('Approve the treasury to spend USDC has been done!')
+  const totalIDOUsdcAmount = 100 * 10000
   const artixMinted = 200000
   const lpArtixAmount = 50000
   const initialArtixPriceInLP = 15
-  const daiInTreasury = totalIDODaiAmount - initialArtixPriceInLP * lpArtixAmount
-  const profit = daiInTreasury - artixMinted - lpArtixAmount
-  // console.log({ daiInTreasury, profit })
+  const usdcInTreasury =initialArtixPriceInLP * lpArtixAmount
+  const profit = usdcInTreasury - artixMinted - lpArtixAmount
+  // console.log({ usdcInTreasury, profit })
 
-  await (
-    await treasuryContract.deposit(
-      ethers.utils.parseEther(String(daiInTreasury)),
-      dai.address,
-      BigNumber.from(profit).mul(1e9)
-    )
-  ).wait()
-  console.log('Deposit DAI in Treasury has been done!')
-  
-  // mint lp
   // await (
-  //   await router_contract.addLiquidity(
-  //       daiAddr,
-  //     artixAddr,
+  //   await treasury.deposit(
+  //     ethers.utils.parseEther(String(usdcInTreasury)),
+  //     usdc.address,
+  //     BigNumber.from(profit).mul(1e9)
+  //   )
+  // ).wait()
+  // console.log('Deposit USDC in Treasury has been done!')
+  
+  // // mint lp
+  // await (
+  //   await quickRouter.addLiquidity(
+  //     usdc.address,
+  //     artix.address,
   //     ethers.utils.parseEther(String(lpArtixAmount * initialArtixPriceInLP)),
   //     ethers.utils.parseUnits(String(lpArtixAmount), 9),
   //     ethers.utils.parseEther(String(lpArtixAmount * initialArtixPriceInLP)),
   //     ethers.utils.parseUnits(String(lpArtixAmount), 9),
   //     deployer.address,
-  //     9000000000000
+  //     1000000000000
   //   )
   // ).wait()
   // console.log('Mint LP has been done!')
-  const lpdaimint = 1000000000000000000000000
-  const lpartixmint = 200000000000000
-  // mint lp
-  await (
-    await router.addLiquidity(
-      daiAddr,
-      artixAddr,
-      ethers.utils.parseEther(String(lpArtixAmount * initialArtixPriceInLP)),
-      ethers.utils.parseUnits(String(lpArtixAmount), 9),
-      ethers.utils.parseEther(String(lpArtixAmount * initialArtixPriceInLP)),
-      ethers.utils.parseUnits(String(lpArtixAmount), 9),
-      deployer.address,
-      9000000000000
-    )
-  ).wait()
-  console.log('Mint LP has been done!')
 
-  // deposit lp with full profit
+  // // deposit lp with full profit
   const lpBalance = await lp.balanceOf(deployer.address)
-  const valueOfLPToken = await treasuryContract.valueOfToken(lpAddress, lpBalance)
-  await treasuryContract.deposit(lpBalance, lpAddress, valueOfLPToken)
+  // const valueOfLPToken = await treasury.valueOfToken(lpAddress.address, lpBalance)
+  // console.log('Value LP Token :'+valueOfLPToken)
+  // console.log('LP Balance :'+lpBalance)
+  // console.log('LP Address :'+lpAddress.address)
+  await treasury.deposit(lpBalance, lpAddress.address, profit)
   console.log('Deposit lp with full profit has been done!')
+
+  // Stake ARTIX through helper
+  // await stakingHelper.stake(
+  //   BigNumber.from(artixMinted).mul(BigNumber.from(10).pow(9))
+  // )
+
+  // Bond 1,000 ARTIX in each of their bonds
+  //   await usdcBond.deposit("1000000000000000000000", "60000", deployer.address);
 }
 
 main()
@@ -220,5 +350,3 @@ main()
     process.exit(1)
   })
 
-
-  
